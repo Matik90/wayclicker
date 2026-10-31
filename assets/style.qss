@@ -1,0 +1,287 @@
+/*
+ * Wayclicker dark theme.
+ *
+ * Palette
+ *   ink        #10131a   window background
+ *   panel      #171b25   cards
+ *   field      #0c0f15   inputs
+ *   line       #262c3b   borders
+ *   text       #e8ebf2   primary text
+ *   muted      #8791a7   captions and hints
+ *   azure      #4c99f2   accent (focus, primary action)
+ *   mint       #5fd3a0   running state
+ *   coral      #ef6b5f   stop action and errors
+ *
+ * "@ASSETS@" is replaced with the absolute assets/ path at start-up
+ * (see ui.load_stylesheet).
+ */
+
+* {
+    color: #e8ebf2;
+    font-size: 13px;
+}
+
+QWidget#MainWindow,
+QDialog,
+QMessageBox {
+    background-color: #10131a;
+}
+
+QLabel {
+    background: transparent;
+}
+
+QLabel:disabled,
+QRadioButton:disabled {
+    color: #566078;
+}
+
+QToolTip {
+    background-color: #171b25;
+    color: #e8ebf2;
+    border: 1px solid #262c3b;
+    padding: 4px 6px;
+}
+
+/* ---- Header ----------------------------------------------------------- */
+
+QLabel#AppTitle {
+    font-size: 21px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+QLabel#AppSubtitle {
+    color: #8791a7;
+    font-size: 12px;
+}
+
+QLabel#StatusBadge {
+    border-radius: 13px;
+    padding: 5px 14px;
+    font-weight: 700;
+}
+
+QLabel#StatusBadge[state="idle"] {
+    background-color: #1f2432;
+    border: 1px solid #2e3548;
+    color: #9aa3b8;
+}
+
+QLabel#StatusBadge[state="running"] {
+    background-color: #12322a;
+    border: 1px solid #1f6b52;
+    color: #5fd3a0;
+}
+
+/* ---- Cards ------------------------------------------------------------ */
+
+QFrame#Card {
+    background-color: #171b25;
+    border: 1px solid #262c3b;
+    border-radius: 12px;
+}
+
+QLabel#CardTitle {
+    color: #8791a7;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+QLabel#FieldCaption,
+QLabel#Hint,
+QLabel#Footer {
+    color: #8791a7;
+    font-size: 12px;
+}
+
+QLabel#Footer[warn="true"] {
+    color: #4c99f2;
+}
+
+/* ---- Inputs ----------------------------------------------------------- */
+
+QLineEdit,
+QComboBox {
+    background-color: #0c0f15;
+    border: 1px solid #2a3144;
+    border-radius: 8px;
+    padding: 7px 10px;
+    selection-background-color: #4c99f2;
+    selection-color: #10131a;
+}
+
+QSpinBox {
+    background-color: #0c0f15;
+    selection-background-color: #4c99f2;
+    selection-color: #10131a;
+}
+
+QLineEdit:hover,
+QSpinBox:hover,
+QComboBox:hover {
+    border-color: #3a4360;
+}
+
+QLineEdit:focus,
+QSpinBox:focus,
+QComboBox:focus,
+QComboBox:on {
+    border-color: #4c99f2;
+}
+
+QLineEdit:disabled,
+QSpinBox:disabled,
+QComboBox:disabled {
+    background-color: #12151d;
+    border-color: #1e2330;
+    color: #566078;
+}
+
+QLineEdit[invalid="true"] {
+    border-color: #ef6b5f;
+}
+
+QComboBox {
+    padding-right: 28px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
+    width: 26px;
+    border: none;
+}
+
+QComboBox::down-arrow {
+    image: url("@ASSETS@/chevron-down.png");
+    width: 10px;
+    height: 10px;
+}
+
+QComboBox::down-arrow:disabled {
+    image: none;
+}
+
+QAbstractItemView {
+    background-color: #12151d;
+    border: 1px solid #2a3144;
+    border-radius: 6px;
+    outline: 0;
+    padding: 3px;
+    selection-background-color: #4c99f2;
+    selection-color: #10131a;
+}
+
+/* ---- Radio buttons ---------------------------------------------------- */
+
+QRadioButton {
+    spacing: 9px;
+    background: transparent;
+}
+
+QRadioButton::indicator {
+    width: 14px;
+    height: 14px;
+    border-radius: 9px;
+    border: 2px solid #3a4360;
+    background-color: transparent;
+}
+
+QRadioButton::indicator:hover {
+    border-color: #6a7596;
+}
+
+QRadioButton::indicator:checked {
+    border: 2px solid #4c99f2;
+    background-color: qradialgradient(
+        cx: 0.5, cy: 0.5, radius: 0.5, fx: 0.5, fy: 0.5,
+        stop: 0 #4c99f2, stop: 0.5 #4c99f2,
+        stop: 0.56 #171b25, stop: 1 #171b25);
+}
+
+QRadioButton::indicator:disabled {
+    border-color: #262c3b;
+}
+
+/* ---- Buttons ---------------------------------------------------------- */
+
+QPushButton#GhostButton {
+    background-color: transparent;
+    border: 1px solid #2a3144;
+    border-radius: 8px;
+    padding: 7px 12px;
+    color: #c4cadb;
+}
+
+QPushButton#GhostButton:hover {
+    border-color: #4c99f2;
+    color: #ffffff;
+}
+
+QPushButton#GhostButton[capturing="true"] {
+    border-color: #4c99f2;
+    color: #4c99f2;
+}
+
+QPushButton#GhostButton:disabled {
+    border-color: #1e2330;
+    color: #566078;
+}
+
+QPushButton#PrimaryButton {
+    background-color: #4c99f2;
+    color: #10131a;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+QPushButton#PrimaryButton:hover {
+    background-color: #4c99f2;
+}
+
+QPushButton#PrimaryButton:pressed {
+    background-color: #2778d6;
+}
+
+QPushButton#PrimaryButton[running="true"] {
+    background-color: #ef6b5f;
+    color: #ffffff;
+}
+
+QPushButton#PrimaryButton[running="true"]:hover {
+    background-color: #f38379;
+}
+
+QPushButton#PrimaryButton[running="true"]:pressed {
+    background-color: #d4564b;
+}
+
+/* ---- Messages --------------------------------------------------------- */
+
+QLabel#ErrorBanner {
+    background-color: #2b1a1d;
+    border: 1px solid #6b2f35;
+    border-radius: 8px;
+    color: #ff9d93;
+    padding: 8px 12px;
+}
+
+QMessageBox QLabel {
+    color: #e8ebf2;
+}
+
+QMessageBox QPushButton {
+    background-color: #171b25;
+    border: 1px solid #2a3144;
+    border-radius: 8px;
+    padding: 7px 18px;
+    min-width: 70px;
+}
+
+QMessageBox QPushButton:hover {
+    border-color: #4c99f2;
+}

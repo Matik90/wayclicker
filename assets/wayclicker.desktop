@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Wayclicker
+GenericName=Autoclicker
+Comment=Wayland-native autoclicker using evdev and uinput made by Matik90
+Exec=wayclicker
+Icon=wayclicker
+Terminal=false
+Categories=Utility;
+Keywords=autoclicker;clicker;mouse;keyboard;wayland;evdev;uinput;
+StartupNotify=false
+StartupWMClass=wayclicker

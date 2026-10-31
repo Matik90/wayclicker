@@ -1,0 +1,7 @@
+# Wayclicker - allow members of the "input" group to create virtual input
+# devices through /dev/uinput.
+#
+# The file name starts with 60 on purpose: it has to run after systemd's
+# 50-udev-default.rules (to override its permissions) and before
+# 73-seat-late.rules (so that the uaccess tag below is honoured).
+KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess", GROUP="input", MODE="0660"

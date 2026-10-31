@@ -33,15 +33,13 @@ compositors such as Niri that ship without built-in XWayland.
 2. [Wayland prerequisites: permissions](#wayland-prerequisites-permissions)
 3. [Usage](#usage)
 4. [Troubleshooting](#troubleshooting)
-5. [Developer guide](#developer-guide): run locally, test, Git, GitHub, `makepkg`, AUR
-6. [How it works](#how-it-works)
-7. [License](#license)
+5. [License](#license)
 
 ---
 
 ## Installation
 
-### Arch Linux and derivatives (AUR)
+### Arch / CachyOS / any Arch-based distro (AUR)
 
 ```bash
 yay -S wayclicker
@@ -49,14 +47,6 @@ yay -S wayclicker
 
 The package installs the app, a desktop entry, the udev rule and the `uinput` module-load file.
 You still have to join the `input` group once, see [permissions](#wayland-prerequisites-permissions).
-
-Without an AUR helper:
-
-```bash
-git clone https://aur.archlinux.org/wayclicker.git
-cd wayclicker
-makepkg -si
-```
 
 ### Other distributions (Debian, Ubuntu, Fedora, openSUSE, ...)
 
@@ -66,26 +56,8 @@ cd wayclicker
 ./install.sh
 ```
 
-The script runs as your normal user and uses `sudo` only where needed. It will:
-
-1. install prerequisites with `apt`, `dnf` or `zypper` (Python, compiler, Qt runtime libraries)
-2. copy the app to `~/.local/share/wayclicker/app`
-3. create a virtual environment and install `evdev` and `PyQt6` into it
-4. add the launcher `~/.local/bin/wayclicker`, a desktop entry and the icon
-5. install the udev rule, enable the `uinput` module and add you to the `input` group
-
 Options: `--no-deps` (skip system packages), `--no-system` (skip kernel permission setup),
 `--uninstall`, `-y` (assume yes). When it finishes, **log out and back in** once.
-
-### From source (any distribution)
-
-```bash
-git clone https://github.com/matik90/wayclicker.git
-cd wayclicker
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt          # evdev is compiled: needs gcc + Python and kernel headers
-python src/main.py
-```
 
 Then follow the permissions section below.
 
@@ -228,159 +200,6 @@ windowrulev2 = float, class:^(wayclicker)$
 KDE Plasma: System Settings, Window Management, Window Rules.
 
 ---
-
-## Developer guide
-
-### Project layout
-
-```
-wayclicker/
-├── assets/
-│   ├── style.qss                 dark theme (QSS), loaded by ui.py
-│   ├── chevron-down.png          dropdown arrow used by the stylesheet
-│   ├── wayclicker.desktop        desktop entry
-│   ├── 60-wayclicker.rules       udev rule: /dev/uinput for the input group
-│   └── wayclicker-modules.conf   loads the uinput module at boot
-├── img/
-│   └── icon.png                  application icon (512x512)
-├── src/
-│   ├── main.py                   entry point, wiring, --check
-│   ├── clicker.py                evdev hotkeys, uinput injection, worker thread
-│   └── ui.py                     PyQt6 window, validation, state binding
-├── install.sh                    installer for non-Arch distributions
-├── PKGBUILD                      Arch Linux / AUR package
-├── requirements.txt
-├── README.md
-└── LICENSE
-```
-
-### 1. Run and test locally
-
-```bash
-cd wayclicker
-python -m venv .venv && source .venv/bin/activate
-# Arch: use the distro packages instead of pip
-#   sudo pacman -S python-evdev python-pyqt6 && python -m venv --system-site-packages .venv
-pip install -r requirements.txt
-
-python src/main.py --check      # permissions report, no GUI needed
-python src/main.py --debug      # run with verbose logging
-```
-
-If you have not logged out since joining the `input` group, run it under the group directly:
-`sg input -c ".venv/bin/python src/main.py --debug"`.
-
-Manual test checklist:
-
-1. **Window**: it opens, shows the icon, dark theme, `IDLE` badge and `Start clicking (F4)`.
-2. **Keyboard test**: open any text editor, then in Wayclicker choose *Keyboard key*, type `a`,
-   set the delay to 100 ms, click the editor, and press `F4`. Letters appear and the badge shows
-   `RUNNING`. Press `F4` again: it stops. This proves hotkey (evdev) and injection (uinput).
-3. **Mouse test**: in a terminal run `sudo libinput debug-events` (or `sudo evtest` and pick
-   *Wayclicker Virtual Mouse*). Start the clicker with *Mouse button*: you will see
-   `POINTER_BUTTON` events for `BTN_LEFT`.
-4. **Repeat X times**: choose 5, start: it clicks five times, then the badge returns to `IDLE` by itself.
-5. **Capture**: click **Capture** next to the hotkey, press `F9`: the field and the button label update.
-6. **Validation**: type `zzz` into the key field: red border and an error message, Start is blocked.
-7. **Permission popup**: run `wayclicker` as a user that is not in the `input` group: a popup with
-   fix instructions appears instead of a crash.
-
-### 2. Create the Git repository and push it to GitHub
-
-```bash
-cd wayclicker
-git init -b main
-git add .
-git commit -m "Initial commit: Wayclicker 1.0.0"
-```
-
-Create an **empty** repository named `wayclicker` on GitHub (no README or license, they already
-exist) at <https://github.com/new>, then:
-
-```bash
-git remote add origin git@github.com:matik90/wayclicker.git      # or the https:// URL
-git push -u origin main
-```
-
-With the GitHub CLI this is a single command:
-
-```bash
-gh repo create matik90/wayclicker --public --source=. --remote=origin --push
-```
-
-Publish the release that the PKGBUILD points at:
-
-```bash
-git tag -a v1.0.0 -m "Wayclicker 1.0.0"
-git push origin v1.0.0
-```
-
-### 3. Build and install the Arch package
-
-> **Never run `makepkg` inside the repository.** makepkg uses a directory called `src/` for its own
-> work (and `makepkg -c` deletes it), which is where the Python sources live. The PKGBUILD
-> refuses to run there. Copy it to an empty directory:
-
-```bash
-BUILD="$(mktemp -d)" && cp PKGBUILD "$BUILD" && cd "$BUILD"
-makepkg -si                       # clones the v1.0.0 tag, builds, installs with pacman
-namcap PKGBUILD                   # lint (package: sudo pacman -S namcap)
-namcap wayclicker-*.pkg.tar.zst
-```
-
-Run it after installing, then check the files landed correctly:
-`pacman -Ql wayclicker` and `wayclicker --check`.
-
-### 4. Publish on the AUR (so `yay -S wayclicker` works)
-
-One-time setup: create an account on <https://aur.archlinux.org> and add your SSH public key in
-*My Account*. First check that the name is free: `yay -Ss wayclicker`.
-
-```bash
-git clone ssh://aur@aur.archlinux.org/wayclicker.git aur-wayclicker    # "empty repository" warning is normal
-cp PKGBUILD aur-wayclicker/ && cd aur-wayclicker
-makepkg --printsrcinfo > .SRCINFO
-git add PKGBUILD .SRCINFO
-git commit -m "wayclicker 1.0.0"
-git branch -M master              # the AUR only accepts the master branch
-git push origin master
-```
-
-Users can now run `yay -S wayclicker`.
-
-Releasing an update: change the code, bump `__version__` in `src/clicker.py` and `pkgver` in the
-PKGBUILD (reset `pkgrel=1`), commit, tag `vX.Y.Z` and push the tag to GitHub, then in the
-`aur-wayclicker` checkout copy the PKGBUILD, regenerate `.SRCINFO`, commit and push as above.
-
----
-
-## How it works
-
-```
- keyboards (/dev/input/event*)                      virtual devices (/dev/uinput)
-        │  evdev, read only, never grabbed                    ▲  uinput
-        ▼                                                     │
-┌──────────────────┐   toggle()   ┌───────────────────────────┴──┐
-│  HotkeyListener  │ ───────────▶ │ AutoClicker (worker thread)  │
-│  (thread)        │              │ start / stop / shutdown      │
-└────────┬─────────┘              │ threading.Event flags        │
-         │ Qt signals             └───────────────┬──────────────┘
-         ▼                                        │ Qt signals
-┌─────────────────────────────────────────────────▼──────────────┐
-│ MainWindow (GUI thread): validates input, publishes the config │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-- **Hotkey thread** polls all keyboards with `select()`, rescans for hot-plugged devices, ignores
-  Wayclicker's own virtual devices and debounces double reports.
-- **Worker thread** lives for the whole session and waits on `threading.Event` objects. The delay
-  between clicks is an interruptible wait on the stop event, so stopping is immediate even with a
-  long interval. Timing is schedule-based, so it does not drift, and it never fires a burst to catch up.
-- **GUI thread** is the only one that touches widgets. Backend threads report back through Qt signals,
-  which Qt delivers safely across threads. The UI publishes a validated, immutable `ClickConfig` to
-  the engine on every change, so the global hotkey works even if the window is hidden or busy.
-- **Errors**: a missing or unwritable `/dev/uinput`, an unreadable `/dev/input`, or a device that vanishes
-  mid-run all end in a clear message, never in a crash or a stuck key. Anything held down is released when a run ends.
 
 ## License
 

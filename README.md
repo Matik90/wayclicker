@@ -30,10 +30,9 @@ compositors such as Niri that ship without built-in XWayland.
 ## Contents
 
 1. [Installation](#installation)
-2. [Wayland prerequisites: permissions](#wayland-prerequisites-permissions)
-3. [Usage](#usage)
-4. [Troubleshooting](#troubleshooting)
-5. [License](#license)
+2. [Usage](#usage)
+3. [Troubleshooting](#troubleshooting)
+4. [License](#license)
 
 ---
 
@@ -60,70 +59,6 @@ Options: `--no-deps` (skip system packages), `--no-system` (skip kernel permissi
 `--uninstall`, `-y` (assume yes). When it finishes, **log out and back in** once.
 
 Then follow the permissions section below.
-
----
-
-## Wayland prerequisites: permissions
-
-Wayclicker needs two things from the kernel. Both are protected by default, so a one-time setup
-is required. **Packaged installs and `install.sh` do steps 2 and 3 for you; step 1 (joining the
-group) always needs a log out and back in.**
-
-### 1. Join the `input` group (read the hotkey)
-
-Keyboards appear as `/dev/input/event*`, owned by `root:input`.
-
-```bash
-sudo usermod -aG input $USER
-```
-
-Group changes only apply to **new login sessions**: log out and back in (or reboot).
-Check with `groups`, the list must contain `input`.
-
-### 2. Let the `input` group use `/dev/uinput` (inject input)
-
-Install the udev rule shipped in `assets/`:
-
-```bash
-sudo install -Dm644 assets/60-wayclicker.rules /etc/udev/rules.d/60-wayclicker.rules
-sudo udevadm control --reload-rules
-sudo udevadm trigger --name-match=uinput
-```
-
-The rule is a single line:
-
-```
-KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess", GROUP="input", MODE="0660"
-```
-
-### 3. Make sure the `uinput` module is loaded
-
-```bash
-sudo modprobe uinput                                                    # now
-sudo install -Dm644 assets/wayclicker-modules.conf /etc/modules-load.d/wayclicker.conf   # every boot
-```
-
-### Verify
-
-```bash
-ls -l /dev/uinput     # expected: crw-rw----+ 1 root input ...
-wayclicker --check    # or: python src/main.py --check
-```
-
-Want to try it before logging out again? Start it with the new group applied to just that process:
-
-```bash
-sg input -c wayclicker
-```
-
-### A note on security
-
-Membership of the `input` group lets a process read **every keystroke on the machine**, including
-passwords typed into other applications. This is inherent to the evdev approach, and the same
-trade-off tools like `ydotool`, `kmonad` and `keyd` make. Wayclicker only reacts to its configured
-hotkey and never records or stores key presses, but you should only run software you trust under a
-user that is in this group. Wayclicker does **not** grab your keyboards: every key still reaches
-the focused application as usual.
 
 ---
 
@@ -158,6 +93,15 @@ Command line:
 ```
 wayclicker [--check] [--debug] [--version]
 ```
+
+### A note on security
+
+Membership of the `input` group lets a process read **every keystroke on the machine**, including
+passwords typed into other applications. This is inherent to the evdev approach, and the same
+trade-off tools like `ydotool`, `kmonad` and `keyd` make. Wayclicker only reacts to its configured
+hotkey and never records or stores key presses, but you should only run software you trust under a
+user that is in this group. Wayclicker does **not** grab your keyboards: every key still reaches
+the focused application as usual.
 
 ---
 

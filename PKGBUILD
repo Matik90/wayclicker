@@ -1,5 +1,3 @@
-# Maintainer: Matik90 <https://github.com/Matik90>
-#
 # Build this file in an EMPTY directory, not inside the source repository:
 # the repository has its own src/ folder, which collides with makepkg's
 # $srcdir (makepkg -c would delete it). The guard below enforces that.
@@ -17,7 +15,7 @@ pkgver=1.0.0
 pkgrel=1
 pkgdesc='Wayland-native autoclicker using evdev and uinput, with a PyQt6 interface'
 arch=('any')
-url='https://github.com/matik90/wayclicker'
+url='https://github.com/Matik90/wayclicker'
 license=('MIT')
 depends=('python' 'python-evdev' 'python-pyqt6')
 makedepends=('git')
@@ -32,8 +30,6 @@ check() {
 package() {
     cd "$srcdir/$pkgname"
 
-    # Application: same layout as the repository (src/, assets/, img/), so the
-    # code finds its resources relative to itself in every install method.
     local share="$pkgdir/usr/share/$pkgname"
     install -Dm644 -t "$share/src" src/clicker.py src/main.py src/ui.py
     install -Dm644 -t "$share/assets" assets/style.qss assets/chevron-down.png
@@ -46,12 +42,8 @@ exec /usr/bin/python /usr/share/$pkgname/src/main.py "\$@"
 EOF
     chmod 755 "$pkgdir/usr/bin/$pkgname"
 
-    # Desktop integration
     install -Dm644 assets/wayclicker.desktop "$pkgdir/usr/share/applications/$pkgname.desktop"
     install -Dm644 img/icon.png "$pkgdir/usr/share/icons/hicolor/512x512/apps/$pkgname.png"
-
-    # Kernel interfaces: /dev/uinput access for the "input" group, and loading
-    # the uinput module at boot. The user still has to join the "input" group.
     install -Dm644 assets/60-wayclicker.rules "$pkgdir/usr/lib/udev/rules.d/60-$pkgname.rules"
     install -Dm644 assets/wayclicker-modules.conf "$pkgdir/usr/lib/modules-load.d/$pkgname.conf"
 

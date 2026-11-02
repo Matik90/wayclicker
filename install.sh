@@ -1,19 +1,3 @@
-#!/usr/bin/env bash
-#
-# Wayclicker installer for distributions other than Arch Linux
-# (Debian/Ubuntu, Fedora/RHEL, openSUSE; Arch users: use the PKGBUILD).
-#
-# What it does
-#   1. installs build/runtime prerequisites with the system package manager
-#   2. copies the app to  ~/.local/share/wayclicker/app
-#   3. creates a virtual environment and installs evdev + PyQt6 into it
-#   4. adds the launcher ~/.local/bin/wayclicker, a desktop entry and the icon
-#   5. configures the kernel interfaces (sudo): uinput module, udev rule and
-#      membership of the "input" group
-#
-# Only step 1 and 5 need root; the script asks via sudo and refuses to run as
-# root itself so that nothing ends up in the wrong home directory.
-#
 # Usage:  ./install.sh [--no-deps] [--no-system] [--uninstall] [-y] [-h]
 
 set -euo pipefail
@@ -105,8 +89,6 @@ detect_package_manager() {
     echo "unknown"
 }
 
-# Install optional packages one by one so that a missing name never aborts.
-# Usage: install_optional <install command...> -- <package...>
 install_optional() {
     local -a cmd=()
     local pkg

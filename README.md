@@ -52,6 +52,7 @@ You still have to join the `input` group once, see [permissions](#wayland-prereq
 ```bash
 git clone https://github.com/matik90/wayclicker.git
 cd wayclicker
+chmod +x install.sh
 ./install.sh
 ```
 
